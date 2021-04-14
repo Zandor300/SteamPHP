@@ -1,5 +1,5 @@
 {
-    "name": "justinback/steam-php",
+    "name": "zandor300/steam-php",
     "description": "Steamworks PHP Wrapper for easy WebAPI interaction",
     "require": {
         "php": ">=5.4.0"
