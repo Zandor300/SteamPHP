@@ -454,6 +454,49 @@ class transactions {
     }
 
     /**
+     * Retrieves details for a user's purchasing info.
+     *
+     *
+     *
+     * @throws exceptions\SteamRequestException if the servers are down, or the web request failed
+     * @throws exceptions\SteamRequestParameterException if the app id is not valid as a parameter
+     * @throws exceptions\SteamException if the app id or api key is not valid as a parameter
+     *
+     * @return object
+     */
+    public function GetUserInfo() {
+        $ch = curl_init();
+
+        $CURLParameters = http_build_query(array(
+            "key" => $this->key,
+            "steamid" => $this->steamid,
+        ));
+
+        curl_setopt($ch, CURLOPT_URL, "https://partner.steam-api.com/" . $this->interface . "/GetUserInfo/v2/?" . $CURLParameters);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        //curl_setopt($ch, CURLOPT_POST, 1);
+        //curl_setopt($ch, CURLOPT_POSTFIELDS, $CURLParameters);
+        $CURLResponse = json_decode(curl_exec($ch));
+        $CURLResponseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        // Error handling improved!
+
+        if ($CURLResponseCode != 200) {
+            if ($CURLResponseCode == 400) {
+                throw new exceptions\SteamRequestParameterException("The Steam ID or another parameter is invalid!");
+            }
+            if ($CURLResponseCode == 401) {
+                throw new exceptions\SteamException("App ID or API Key is invalid.");
+            }
+            throw new exceptions\SteamRequestException("$CURLResponseCode Request Error.");
+        }
+
+        return $CURLResponse->response->params;
+    }
+
+    /**
      * Creates a new purchase. Send the order information along with the Steam ID to seed the transaction on Steam.
      *
      * This command allows you to create a shopping cart of one or more items for a user. The cost and descriptions of these items will be displayed to the user for their approval. The purchase interface can be configured for either the Steam client or a web browser depending on if you are running a purchase in-game or from a web page.
